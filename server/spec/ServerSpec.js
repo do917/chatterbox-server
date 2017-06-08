@@ -40,6 +40,9 @@ describe('Node Server Request Listener Function', function() {
     handler.requestHandler(req, res);
 
     var parsedBody = JSON.parse(res._data);
+    console.log(res._data);
+    console.log(parsedBody);
+    console.log(res._ended);
     expect(parsedBody).to.be.an('object');
     expect(res._ended).to.equal(true);
   });

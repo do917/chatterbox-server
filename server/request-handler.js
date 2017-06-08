@@ -12,6 +12,10 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+var messages = {
+  results: [] 
+};
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -28,9 +32,32 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
+  console.log(request.url);
+  var statusCode = 200;
+  
+  
+  if (request.method === 'GET' && request.url === '/classes/messages') {
+    statusCode = 200;
+  } else if (request.method === 'POST') {
+    statusCode = 201;
+    request.on('data', function(message) {
+      messages.results.push(JSON.parse(message));
+      console.log('server: message successfully stored');    
+    });
+  } else if (request.method !== 'OPTIONS') {
+    statusCode = 404;
+  }
+    
+  
+  
+
+  
+
+
+
 
   // The outgoing status.
-  var statusCode = 200;
+  // var statusCode = 200;
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -44,7 +71,6 @@ var requestHandler = function(request, response) {
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
-
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -52,7 +78,11 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+
+
+  
+  response.end(JSON.stringify(messages));
+  
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -71,3 +101,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+// module.exports = {
+//   requestHandler: requestHandler
+// };
+
+exports.requestHandler = requestHandler;
